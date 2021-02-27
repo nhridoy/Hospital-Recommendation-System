@@ -164,6 +164,6 @@ map_data = pd.DataFrame({'lat': [add.latitude], 'lon': [add.longitude]})
 map_data2 = hospital.iloc[:, -2:]
 map_data2['lat'] = map_data2['lat'].astype(float)
 map_data2['lon'] = map_data2['lon'].astype(float)
-print(map_data2)
+
 st.map(map_data2)
 
