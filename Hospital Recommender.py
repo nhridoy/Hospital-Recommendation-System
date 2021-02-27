@@ -13,14 +13,14 @@ import requests
 from io import BytesIO
 
 # loading hospital data
-hos = "F:\My Coding\Python\Hospital Lists.xlsx"
+hos = "Hospital Lists.xlsx"
 hospital = pd.read_excel(hos, sheet_name=0)
 
 hospital = hospital.iloc[:, :-1]
 hospital = hospital.iloc[:, :-1]
 
 # loading cardio data in a variable
-csv = "F:\My Coding\Python\cardio.csv"
+csv = "cardio.csv"
 # opening cardio data
 df = pd.read_csv(csv)
 
@@ -43,7 +43,7 @@ st.title(
 # Opening and Displaying an Image
 # im = requests.get("F:\My Coding\Python\im.jpeg")
 # image = Image.open(BytesIO(im.content))
-image = Image.open("F:\My Coding\Python\im.jpeg")
+image = Image.open("im.jpeg")
 st.image(image, caption="Machine Learning", use_column_width=True)
 
 # Creating Subheader

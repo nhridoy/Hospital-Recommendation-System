@@ -1,0 +1,6 @@
+xlrd
+pandas
+Pillow
+scikit-learn
+streamlit
+geopy

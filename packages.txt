@@ -1,6 +1,0 @@
-pip install xlrd
-pip install pandas
-pip install Pillow
-pip install -U scikit-learn
-pip install streamlit
-pip install geopy
