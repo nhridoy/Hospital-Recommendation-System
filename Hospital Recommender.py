@@ -1,0 +1,169 @@
+# importing libraries
+import pandas as pd
+import xlrd3 as xl
+import numpy as np
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from PIL import Image
+import streamlit as st
+from geopy.geocoders import Nominatim, AlgoliaPlaces, GoogleV3, MapBox, GeocodeFarm
+from geopy import distance
+import requests
+from io import BytesIO
+
+# loading hospital data
+hos = "F:\My Coding\Python\Hospital Lists.xlsx"
+hospital = pd.read_excel(hos, sheet_name=0)
+
+hospital = hospital.iloc[:, :-1]
+hospital = hospital.iloc[:, :-1]
+
+# loading cardio data in a variable
+csv = "F:\My Coding\Python\cardio.csv"
+# opening cardio data
+df = pd.read_csv(csv)
+
+# Converting Days into Years
+df["years"] = (df["age"] / 365).round(0)
+df["years"] = pd.to_numeric(df["years"], downcast="integer")
+
+# Deleting ID and age column
+df = df.drop("id", axis=1)
+df = df.drop("age", axis=1)
+
+# Creating Title and Subtitle
+st.title(
+    """
+    Hospital Recommendation System
+    Recommending Hospital Using AI
+    """
+)
+
+# Opening and Displaying an Image
+# im = requests.get("F:\My Coding\Python\im.jpeg")
+# image = Image.open(BytesIO(im.content))
+image = Image.open("F:\My Coding\Python\im.jpeg")
+st.image(image, caption="Machine Learning", use_column_width=True)
+
+# Creating Subheader
+st.subheader("Data Information:")
+# Showing the Data
+st.dataframe(df.head(300))
+# Showing Statistics of Data
+st.write(df.describe())
+# Showing Data as a chart
+chart = st.bar_chart(df.head(300))
+
+# Splitting Data into feature data X and target data Y Variable
+X = df.drop("cardio", axis=1).values
+Y = df["cardio"].values
+
+# Splitting Data into 99% training and 1% testing dataset
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.01, random_state=1)
+
+
+# Getting Input from User
+def get_user_input():
+    gen = ("male", "female")
+    gen_options = list(range(len(gen)))
+    gender = st.sidebar.selectbox("gender", gen_options, format_func=lambda x: gen[x])
+    height = st.sidebar.slider("height", 30.0, 350.0, 175.26)
+    st.sidebar.write(height)
+    weight = st.sidebar.slider("weight", 20.0, 180.0, 81.0)
+    st.sidebar.write(weight)
+    bp_upper = st.sidebar.text_input("bp_upper", 104)
+    bp_lower = st.sidebar.text_input("bp_lower", 78)
+    col = ("Normal", "Above Normal", "Well Above Normal")
+    col_options = list(range(len(col)))
+    cholesterol = st.sidebar.selectbox("cholesterol", col_options, format_func=lambda x: col[x])
+    gluc = ("Normal", "Above Normal", "Well Above Normal")
+    gluc_options = list(range(len(gluc)))
+    glucose = st.sidebar.selectbox("glucose", gluc_options, format_func=lambda x: gluc[x])
+    smoke = ("No", "Yes")
+    smoke_options = list(range(len(smoke)))
+    smoker = st.sidebar.selectbox("smoker", smoke_options, format_func=lambda x: smoke[x])
+    alc = ("No", "Yes")
+    alc_options = list(range(len(alc)))
+    alcoholic = st.sidebar.selectbox("alcoholic", alc_options, format_func=lambda x: alc[x])
+    actv = ("Not Active", "Active")
+    actv_options = list(range(len(actv)))
+    activeness = st.sidebar.selectbox("activeness", actv_options, format_func=lambda x: actv[x])
+    age = st.sidebar.text_input("age", 24)
+
+    # User Info Dictionary
+    user_data = {
+        "gender": gender + 1,
+        "height": height,
+        "weight": weight,
+        "ap_high": bp_upper,
+        "ap_lo": bp_lower,
+        "cholesterol": cholesterol + 1,
+        "gluc": glucose + 1,
+        "smoke": smoker,
+        "alco": alcoholic,
+        "active": activeness,
+        "years": age
+    }
+    # Converting User Data into DataFrame
+    user_features = pd.DataFrame(user_data, index=[0])
+
+    return user_features
+
+
+# Storing User Input to a variable
+user_input = get_user_input()
+
+address = st.sidebar.text_input("address (Road Name, Village, District, Country)", "New Jail Road, Mohiskhola, Narail, Bangladesh")
+
+# Creating a subheader and displaying the user input
+st.subheader("User Input")
+st.write(user_input)
+
+# Create and Train the model
+RandomForestClassifier = RandomForestClassifier()
+RandomForestClassifier.fit(X_train, Y_train)
+
+# Showing the model accuracy
+st.subheader("Model Test Accuracy Score: ")
+st.write(str(accuracy_score(Y_test, RandomForestClassifier.predict(X_test)) * 100), "%")
+
+# Store The Model Prediction in a Variable
+prediction = RandomForestClassifier.predict(user_input)
+
+# Set a subheader and display the classification
+st.subheader("Classification")
+if prediction == 0:
+    st.write("You Don't Have a Cardio Vascular Disease")
+else:
+    st.write("You Might Have Cardio Vascular Disease")
+st.write(prediction)
+
+
+go = MapBox(api_key="pk.eyJ1IjoiaHJpZG95Ym9zczEyIiwiYSI6ImNrbGo5OW9pbzBnNDgyb28wdG0ycDU1MmQifQ.NxMoHVOobdijNONLuY8QMQ")
+add = go.geocode(address)
+
+user_address = f"{add.latitude}, {add.longitude}"
+
+ls = []
+for i in range(hospital["Co-Ordinates"].count()):
+    ds = distance.distance(user_address, hospital["Co-Ordinates"][i]).km
+    ls.append(ds)
+hospital["Distance"] = ls
+hospital = hospital.sort_values(by="Distance").head(5)
+
+st.subheader("Your Location: ")
+st.write(add, add.latitude, add.longitude)
+st.subheader("Closest 5 Hospitals from your Location: ")
+st.write(hospital)
+
+# splitting co-ordinates into lattitude and longitude column
+hospital[["lat", "lon"]] = hospital['Co-Ordinates'].str.split(',', expand=True)
+
+map_data = pd.DataFrame({'lat': [add.latitude], 'lon': [add.longitude]})
+map_data2 = hospital.iloc[:, -2:]
+map_data2['lat'] = map_data2['lat'].astype(float)
+map_data2['lon'] = map_data2['lon'].astype(float)
+print(map_data2)
+st.map(map_data2)
+
