@@ -13,6 +13,6 @@ To Run the app:
  2. Open CMD/PowerShell on that folder (On Windows Shift+Right Click)
  3. Paste this following command on CMD/PowerShell
 ```bash
-    streamlit run "F:/My Coding/Python/Hospital Recommender.py"
+    streamlit run "Hospital Recommender.py"
 ```
  4. Watch the app on your browser
