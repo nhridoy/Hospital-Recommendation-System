@@ -176,7 +176,7 @@ for i in range(hospital["lat"].count()):
     ln = hospital["lon"][i]
     tooltip = f"{n} in {a}, {d}"
     folium.Marker(
-        [lt, ln], popup=tooltip, tooltip="Click to View Hospital Info"
+        [lt, ln], popup=tooltip, tooltip=n
     ).add_to(m)
     folium.CircleMarker(location=[add.latitude, add.longitude], radius=6, popup=f"{add}", tooltip="Your Location",
                         fill_color="blue", color="white", fill_opacity=0.7).add_to(m)
