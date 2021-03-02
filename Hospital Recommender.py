@@ -1,4 +1,5 @@
 # importing libraries
+import folium
 import pandas as pd
 import xlrd3 as xl
 import numpy as np
@@ -11,6 +12,7 @@ from geopy.geocoders import Nominatim, AlgoliaPlaces, GoogleV3, MapBox, GeocodeF
 from geopy import distance
 import requests
 from io import BytesIO
+from streamlit_folium import folium_static
 
 # loading hospital data
 hos = "Hospital Lists.xlsx"
@@ -114,7 +116,8 @@ def get_user_input():
 # Storing User Input to a variable
 user_input = get_user_input()
 
-address = st.sidebar.text_input("address (Road Name, Village, District, Country)", "New Jail Road, Mohiskhola, Narail, Bangladesh")
+address = st.sidebar.text_input("address (Road Name, Village, District, Country)",
+                                "New Jail Road, Mohiskhola, Narail, Bangladesh")
 
 # Creating a subheader and displaying the user input
 st.subheader("User Input")
@@ -139,7 +142,6 @@ else:
     st.write("You Might Have Cardio Vascular Disease")
 st.write(prediction)
 
-
 go = MapBox(api_key="pk.eyJ1IjoiaHJpZG95Ym9zczEyIiwiYSI6ImNrbGo5OW9pbzBnNDgyb28wdG0ycDU1MmQifQ.NxMoHVOobdijNONLuY8QMQ")
 add = go.geocode(address)
 
@@ -155,15 +157,35 @@ hospital = hospital.sort_values(by="Distance").head(5)
 st.subheader("Your Location: ")
 st.write(add, add.latitude, add.longitude)
 st.subheader("Closest 5 Hospitals from your Location: ")
+# Resetting Hospital Index
+hospital = hospital.reset_index(drop=True)
 st.write(hospital)
 
 # splitting co-ordinates into lattitude and longitude column
 hospital[["lat", "lon"]] = hospital['Co-Ordinates'].str.split(',', expand=True)
 
-map_data = pd.DataFrame({'lat': [add.latitude], 'lon': [add.longitude]})
-map_data2 = hospital.iloc[:, -2:]
-map_data2['lat'] = map_data2['lat'].astype(float)
-map_data2['lon'] = map_data2['lon'].astype(float)
+# Creating Folium Map
+m = folium.Map(location=[add.latitude, add.longitude])
 
-st.map(map_data2)
+# Creating Users Circle Marker and Hospitals Markers
+for i in range(hospital["lat"].count()):
+    n = hospital["Hospital Name"][i]
+    a = hospital["Address"][i]
+    d = hospital["District"][i]
+    lt = hospital["lat"][i]
+    ln = hospital["lon"][i]
+    tooltip = f"{n} in {a}, {d}"
+    folium.Marker(
+        [lt, ln], popup=tooltip, tooltip="Click to View Hospital Info"
+    ).add_to(m)
+    folium.CircleMarker(location=[add.latitude, add.longitude], radius=6, popup=f"{add}", tooltip="Your Location",
+                        fill_color="blue", color="white", fill_opacity=0.7).add_to(m)
 
+# Setting Dynamic Zoom Level For the Map
+sw = hospital[['lat', 'lon']].min().values.tolist()
+ne = hospital[['lat', 'lon']].max().values.tolist()
+
+m.fit_bounds([sw, ne])
+
+# Showing The Map
+folium_static(m)
