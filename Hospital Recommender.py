@@ -174,7 +174,7 @@ for i in range(hospital["lat"].count()):
     d = hospital["District"][i]
     lt = hospital["lat"][i]
     ln = hospital["lon"][i]
-    tooltip = f"{n} in {a}, {d}"
+    tooltip = f"<i><b>{n}</b></i> in <i><b>{a}</b></i>, {d}"
     folium.Marker(
         [lt, ln], popup=tooltip, tooltip=n
     ).add_to(m)
@@ -189,3 +189,10 @@ m.fit_bounds([sw, ne])
 
 # Showing The Map
 folium_static(m)
+
+# Old Map For Reference
+map_data2 = hospital.iloc[:, -2:]
+map_data2['lat'] = map_data2['lat'].astype(float)
+map_data2['lon'] = map_data2['lon'].astype(float)
+
+st.map(map_data2)
