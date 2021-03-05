@@ -1,17 +1,13 @@
 # importing libraries
 import folium
 import pandas as pd
-import xlrd3 as xl
-import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from PIL import Image
 import streamlit as st
-from geopy.geocoders import Nominatim, AlgoliaPlaces, GoogleV3, MapBox, GeocodeFarm
+from geopy.geocoders import MapBox
 from geopy import distance
-import requests
-from io import BytesIO
 from streamlit_folium import folium_static
 
 # loading hospital data

@@ -1,4 +1,5 @@
 xlrd
+openpyxl
 pandas
 Pillow
 scikit-learn
