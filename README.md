@@ -1,4 +1,6 @@
 # Hospital Recommendation System
+**Code For Badge**
+[![Streamlit App](https://static.streamlit.io/badges/st...​)](https://share.streamlit.io/yourGitHub...​)
 ## Installation
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install 
 
