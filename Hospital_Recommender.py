@@ -63,7 +63,7 @@ X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.01, random
 
 # Getting Input from User
 def get_user_input():
-    gen = ("male", "female")
+    gen = ("female", "male")
     gen_options = list(range(len(gen)))
     gender = st.sidebar.selectbox("gender", gen_options, format_func=lambda x: gen[x])
     height = st.sidebar.slider("height", 30.0, 350.0, 175.26)
