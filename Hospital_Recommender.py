@@ -30,6 +30,33 @@ df["years"] = pd.to_numeric(df["years"], downcast="integer")
 df = df.drop("id", axis=1)
 df = df.drop("age", axis=1)
 
+# Fixing Outliners years, height, weight, ap_hi and ap_lo
+s_list = ["years", "height", "weight", "ap_hi", "ap_lo"]
+def standartization(df):
+    x_std = df.copy(deep=True)
+    for column in s_list:
+        x_std[column] = (x_std[column]-x_std[column].mean())/x_std[column].std()
+    return x_std 
+x_std=standartization(df)
+x_melted = pd.melt(frame=x_std, id_vars="cardio", value_vars=s_list, var_name="features", value_name="value", col_level=None)
+ap_list = ["ap_hi", "ap_lo"]
+boundary = pd.DataFrame(index=["lower_bound","upper_bound"]) # We created an empty dataframe
+for each in ap_list:
+    Q1 = df[each].quantile(0.25)
+    Q3 = df[each].quantile(0.75)
+    IQR = Q3 - Q1
+
+    lower_bound = Q1- 1.5*IQR
+    upper_bound = Q3 + 1.5*IQR
+    boundary[each] = [lower_bound, upper_bound ]
+ap_hi_filter = (df["ap_hi"] > boundary["ap_hi"][1])
+ap_lo_filter = (df["ap_lo"] > boundary["ap_lo"][1])                                                           
+outlier_filter = (ap_hi_filter | ap_lo_filter)
+x_outliers = df[outlier_filter]
+out_filter = ((df["ap_hi"]>250) | (df["ap_lo"]>200) )
+df = df[~out_filter]
+# Fixed Outliners
+
 # Creating Title and Subtitle
 st.title(
     """
