@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from PIL import Image
 import streamlit as st
 from geopy.geocoders import MapBox
@@ -87,6 +88,11 @@ Y = df["cardio"].values
 # Splitting Data into 99% training and 1% testing dataset
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.01, random_state=1)
 
+# Data Scaler
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+X_train = StandardScaler().fit_transform(X_train)
+X_test = StandardScaler().fit(X_test).transform(X_test)
 
 # Getting Input from User
 def get_user_input():
@@ -147,15 +153,15 @@ st.subheader("User Input")
 st.write(user_input)
 
 # Create and Train the model
-RandomForestClassifier = RandomForestClassifier()
-RandomForestClassifier.fit(X_train, Y_train)
+KNN = KNeighborsClassifier(n_neighbors=100)
+KNN.fit(X_train, Y_train)
 
 # Showing the model accuracy
 st.subheader("Model Test Accuracy Score: ")
-st.write(str(accuracy_score(Y_test, RandomForestClassifier.predict(X_test)) * 100), "%")
+st.write(str(accuracy_score(Y_test, KNN.predict(X_test)) * 100), "%")
 
 # Store The Model Prediction in a Variable
-prediction = RandomForestClassifier.predict(user_input)
+prediction = KNN.predict(user_input)
 
 # Set a subheader and display the classification
 st.subheader("Classification")
