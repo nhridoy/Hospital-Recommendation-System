@@ -3,7 +3,7 @@ import folium
 import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from PIL import Image
 import streamlit as st
@@ -153,15 +153,15 @@ st.subheader("User Input")
 st.write(user_input)
 
 # Create and Train the model
-KNN = KNeighborsClassifier(n_neighbors=100)
-KNN.fit(X_train, Y_train)
+ada = AdaBoostClassifier()
+ada.fit(X_train, Y_train)
 
 # Showing the model accuracy
 st.subheader("Model Test Accuracy Score: ")
-st.write(str(accuracy_score(Y_test, KNN.predict(X_test)) * 100), "%")
+st.write(str(accuracy_score(Y_test, ada.predict(X_test)) * 100), "%")
 
 # Store The Model Prediction in a Variable
-prediction = KNN.predict(user_input)
+prediction = ada.predict(user_input)
 
 # Set a subheader and display the classification
 st.subheader("Classification")
