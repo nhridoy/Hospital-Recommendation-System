@@ -4,7 +4,6 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.neighbors import KNeighborsClassifier
 from PIL import Image
 import streamlit as st
 from geopy.geocoders import MapBox
@@ -72,6 +71,9 @@ st.title(
 image = Image.open("im.jpeg")
 st.image(image, caption="Machine Learning", use_column_width=True)
 
+# Creating BMI column
+df["bmi"] = df["weight"]/ (df["height"]/100)**2
+
 # Creating Subheader
 st.subheader("Data Information:")
 # Showing the Data
@@ -88,11 +90,6 @@ Y = df["cardio"].values
 # Splitting Data into 99% training and 1% testing dataset
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.01, random_state=1)
 
-# Data Scaler
-from sklearn.preprocessing import StandardScaler
-sc = StandardScaler()
-X_train = StandardScaler().fit_transform(X_train)
-X_test = StandardScaler().fit(X_test).transform(X_test)
 
 # Getting Input from User
 def get_user_input():
@@ -134,7 +131,8 @@ def get_user_input():
         "smoke": smoker,
         "alco": alcoholic,
         "active": activeness,
-        "years": age
+        "years": age,
+        "bmi": weight/ (height/100)**2
     }
     # Converting User Data into DataFrame
     user_features = pd.DataFrame(user_data, index=[0])
@@ -170,6 +168,11 @@ if prediction == 0:
 else:
     st.write("You Might Have Cardio Vascular Disease")
 st.write(prediction)
+
+for i in range(user_input["bmi"].count()):
+    if user_input["bmi"][i] > 25:
+        st.write("You should have loose some weight")
+
 
 go = MapBox(api_key="pk.eyJ1IjoiaHJpZG95Ym9zczEyIiwiYSI6ImNrbGo5OW9pbzBnNDgyb28wdG0ycDU1MmQifQ.NxMoHVOobdijNONLuY8QMQ")
 add = go.geocode(address)
