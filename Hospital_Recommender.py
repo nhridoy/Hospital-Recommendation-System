@@ -179,33 +179,34 @@ add = go.geocode(address)
 
 user_address = f"{add.latitude}, {add.longitude}"
 
+# Hospital List One
 ls = []
 for i in range(hospital["Co-Ordinates"].count()):
     ds = distance.distance(user_address, hospital["Co-Ordinates"][i]).km
     ls.append(ds)
 hospital["Distance"] = ls
-hospital = hospital.sort_values(by="Distance").head(5)
+hospital1 = hospital.sort_values(by="Distance").head(5)
 
 st.subheader("Your Location: ")
 st.write(add, add.latitude, add.longitude)
 st.subheader("Closest 5 Hospitals from your Location: ")
 # Resetting Hospital Index
-hospital = hospital.reset_index(drop=True)
-st.write(hospital)
+hospital1 = hospital1.reset_index(drop=True)
+st.write(hospital1)
 
 # splitting co-ordinates into lattitude and longitude column
-hospital[["lat", "lon"]] = hospital['Co-Ordinates'].str.split(',', expand=True)
+hospital1[["lat", "lon"]] = hospital1['Co-Ordinates'].str.split(',', expand=True)
 
-# Creating Folium Map
+# Creating Folium Map One
 m = folium.Map(location=[add.latitude, add.longitude])
 
 # Creating Users Circle Marker and Hospitals Markers
-for i in range(hospital["lat"].count()):
-    n = hospital["Hospital Name"][i]
-    a = hospital["Address"][i]
-    d = hospital["District"][i]
-    lt = hospital["lat"][i]
-    ln = hospital["lon"][i]
+for i in range(hospital1["lat"].count()):
+    n = hospital1["Hospital Name"][i]
+    a = hospital1["Address"][i]
+    d = hospital1["District"][i]
+    lt = hospital1["lat"][i]
+    ln = hospital1["lon"][i]
     tooltip = f"<i><b>{n}</b></i> in <i><b>{a}</b></i>, {d}"
     folium.Marker(
         [lt, ln], popup=tooltip, tooltip=n
@@ -214,17 +215,58 @@ for i in range(hospital["lat"].count()):
                         fill_color="blue", color="white", fill_opacity=0.7).add_to(m)
 
 # Setting Dynamic Zoom Level For the Map
-sw = hospital[['lat', 'lon']].min().values.tolist()
-ne = hospital[['lat', 'lon']].max().values.tolist()
+sw = hospital1[['lat', 'lon']].min().values.tolist()
+ne = hospital1[['lat', 'lon']].max().values.tolist()
 
 m.fit_bounds([sw, ne])
 
-# Showing The Map
+# Showing The Map One
 folium_static(m)
 
-# Old Map For Reference
-map_data2 = hospital.iloc[:, -2:]
-map_data2['lat'] = map_data2['lat'].astype(float)
-map_data2['lon'] = map_data2['lon'].astype(float)
 
-st.map(map_data2)
+if prediction == 0:
+
+    # Hospital List Two
+    hospital2 = hospital[hospital["Speciality"] == "Heart Hospital"]
+    hospital2 = hospital2.sort_values(by="Distance").head(5)
+    st.subheader("Closest 5 Hospitals from your Location Based on your condition: ")
+    # Resetting Hospital Index
+    hospital2 = hospital2.reset_index(drop=True)
+    st.write(hospital2.head(5))
+
+    # splitting co-ordinates into lattitude and longitude column
+    hospital2[["lat", "lon"]] = hospital2['Co-Ordinates'].str.split(',', expand=True)
+
+    # Creating Folium Map Two
+    m2 = folium.Map(location=[add.latitude, add.longitude])
+
+    # Creating Users Circle Marker and Hospitals Markers
+    for i in range(hospital2["lat"].count()):
+        n = hospital2["Hospital Name"][i]
+        a = hospital2["Address"][i]
+        d = hospital2["District"][i]
+        lt = hospital2["lat"][i]
+        ln = hospital2["lon"][i]
+        tooltip = f"<i><b>{n}</b></i> in <i><b>{a}</b></i>, {d}"
+        folium.Marker(
+            [lt, ln], popup=tooltip, tooltip=n
+        ).add_to(m2)
+        folium.CircleMarker(location=[add.latitude, add.longitude], radius=6, popup=f"{add}", tooltip="Your Location",
+                            fill_color="blue", color="white", fill_opacity=0.7).add_to(m2)
+
+    # Setting Dynamic Zoom Level For the Map
+    sw = hospital2[['lat', 'lon']].min().values.tolist()
+    ne = hospital2[['lat', 'lon']].max().values.tolist()
+
+    m2.fit_bounds([sw, ne])
+
+    # Showing The Map Two
+    folium_static(m2)
+
+# Old Map For Reference
+
+# map_data2 = hospital1.iloc[:, -2:]
+# map_data2['lat'] = map_data2['lat'].astype(float)
+# map_data2['lon'] = map_data2['lon'].astype(float)
+
+# st.map(map_data2)
