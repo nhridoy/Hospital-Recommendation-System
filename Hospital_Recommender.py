@@ -224,7 +224,7 @@ m.fit_bounds([sw, ne])
 folium_static(m)
 
 
-if prediction == 0:
+if prediction == 1:
 
     # Hospital List Two
     hospital2 = hospital[hospital["Speciality"] == "Heart Hospital"]
