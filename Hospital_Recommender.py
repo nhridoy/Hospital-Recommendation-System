@@ -3,7 +3,7 @@ import folium
 import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from PIL import Image
 import streamlit as st
 from geopy.geocoders import MapBox
