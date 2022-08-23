@@ -134,10 +134,7 @@ def get_user_input():
         "years": age,
         "bmi": weight/ (height/100)**2
     }
-    # Converting User Data into DataFrame
-    user_features = pd.DataFrame(user_data, index=[0])
-
-    return user_features
+    return pd.DataFrame(user_data, index=[0])
 
 
 # Storing User Input to a variable
